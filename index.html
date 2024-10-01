@@ -1,21 +1,19 @@
-<div class="tabs">
-  <button class="tab-button active" onclick="openTab('sensores')">Sensores</button>
-  <button class="tab-button" onclick="openTab('configuracao')">Configuração</button>
-</div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoramento em Tempo Real</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Dados dos Sensores de Flexão</h1>
 
-<div id="sensores" class="tab-content active">
-  <h2>Dados dos Sensores</h2>
-  <div class="sensor-data">
-    <div class="sensor" id="sensor1">Sensor 1: -- °C</div>
-    <div class="sensor" id="sensor2">Sensor 2: -- °C</div>
-    <div class="sensor" id="sensor3">Sensor 3: -- °C</div>
-    <div class="sensor" id="sensor4">Sensor 4: -- °C</div>
-    <div class="sensor" id="sensor5">Sensor 5: -- °C</div>
+  <div class="status">
+    Status: <span id="status" class="disconnected">Desconectado</span>
   </div>
-</div>
 
-<div id="configuracao" class="tab-content">
-  <h2>Configuração de Voz</h2>
+  <!-- Seletor de Voz -->
   <div class="voice-selector">
     <label for="voice">Selecione a Voz:</label>
     <select id="voice">
@@ -23,5 +21,34 @@
       <option value="Feminino">Feminina</option>
     </select>
   </div>
+
+  <!-- Botão para Ativar/Desativar Som -->
   <button id="toggle-sound" class="toggle-sound">Ativar Som</button>
-</div>
+
+  <!-- Botão para alternar entre dados e gráfico -->
+  <button id="toggle-view">Alternar para Gráfico</button>
+
+  <!-- Área das mensagens -->
+  <div id="message" class="message"></div>
+
+  <!-- Área dos sensores (visualização de dados) -->
+  <div id="sensor-data-view">
+    <div class="sensor-data">
+      <div class="sensor" id="sensor1">Sensor 1: --</div>
+      <div class="sensor" id="sensor2">Sensor 2: --</div>
+      <div class="sensor" id="sensor3">Sensor 3: --</div>
+      <div class="sensor" id="sensor4">Sensor 4: --</div>
+      <div class="sensor" id="sensor5">Sensor 5: --</div>
+    </div>
+  </div>
+
+  <!-- Área para o gráfico (inicialmente escondido) -->
+  <div id="sensor-chart-view" style="display:none;">
+    <canvas id="sensorChart"></canvas>
+  </div>
+
+  <!-- Script do Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
