@@ -1,9 +1,64 @@
+var ws = new WebSocket("ws://192.168.0.200:81/");
+var statusElement = document.getElementById("status");
+var messageElement = document.getElementById("message");
+var voiceSelect = document.getElementById("voice");
+var toggleSoundButton = document.getElementById("toggle-sound");
+
+var soundEnabled = false; // O som começa desativado
+var activeMessages = [];
+
+// Função para tocar o som correspondente
+function playSound(sensor) {
+  if (soundEnabled) { // Verifica se o som está ativado
+    var selectedVoice = voiceSelect.value;
+    var soundPath = "Sons/" + selectedVoice + "/" + sensor + ".mp3";
+    var audio = new Audio(soundPath);
+    audio.play();
+  }
+}
+
+// Função para mostrar a mensagem por 10 segundos
+function showMessage(sensor, text) {
+  if (!activeMessages.includes(sensor)) {
+    activeMessages.push(sensor);
+    messageElement.innerText = text;
+    playSound(sensor);
+
+    setTimeout(function() {
+      messageElement.innerText = '';
+      activeMessages = activeMessages.filter(function(item) { return item !== sensor; });
+    }, 10000);
+  }
+}
+
+// Lógica para o botão de Ativar/Desativar som
+toggleSoundButton.addEventListener("click", function() {
+  soundEnabled = !soundEnabled; // Alterna o estado do som
+
+  // Atualiza o texto do botão
+  toggleSoundButton.innerText = soundEnabled ? "Desativar Som" : "Ativar Som";
+});
+
 // Função para converter o valor do sensor em graus
 function mapToDegrees(sensorValue) {
   // Mapeia o valor do sensor (500 a 0) para graus (0 a 180)
   var degrees = (sensorValue / 500) * 180;
   return Math.round(degrees); // Arredonda para o número inteiro mais próximo
 }
+
+// Quando a conexão for estabelecida
+ws.onopen = function() {
+  statusElement.innerText = "Conectado";
+  statusElement.classList.remove("disconnected");
+  statusElement.classList.add("connected");
+};
+
+// Quando a conexão for encerrada
+ws.onclose = function() {
+  statusElement.innerText = "Desconectado";
+  statusElement.classList.remove("connected");
+  statusElement.classList.add("disconnected");
+};
 
 // Quando receber dados do servidor
 ws.onmessage = function(event) {
@@ -32,4 +87,9 @@ ws.onmessage = function(event) {
   if (parseInt(sensorValues[4]) < 400) {
     showMessage("5", "EU TE AMO");
   }
+};
+
+// Se houver erro
+ws.onerror = function(error) {
+  console.log("Erro de WebSocket: ", error);
 };
