@@ -1,68 +1,32 @@
-var ws = new WebSocket("ws://192.168.0.200:81/");
-var statusElement = document.getElementById("status");
-var messageElement = document.getElementById("message");
-var voiceSelect = document.getElementById("voice");
-var toggleSoundButton = document.getElementById("toggle-sound");
-
-var soundEnabled = false; // O som começa desativado
-var activeMessages = [];
-
-// Função para tocar o som correspondente
-function playSound(sensor) {
-  if (soundEnabled) { // Verifica se o som está ativado
-    var selectedVoice = voiceSelect.value;
-    var soundPath = `Sons/${selectedVoice}/${sensor}.mp3`;
-    var audio = new Audio(soundPath);
-    audio.play();
+function openTab(tabName) {
+  var i, tabcontent, tabbuttons;
+  
+  tabcontent = document.getElementsByClassName("tab-content");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].classList.remove("active");
   }
+
+  tabbuttons = document.getElementsByClassName("tab-button");
+  for (i = 0; i < tabbuttons.length; i++) {
+    tabbuttons[i].classList.remove("active");
+  }
+
+  document.getElementById(tabName).classList.add("active");
+  event.currentTarget.classList.add("active");
 }
 
-// Função para mostrar a mensagem por 10 segundos
-function showMessage(sensor, text) {
-  if (!activeMessages.includes(sensor)) {
-    activeMessages.push(sensor);
-    messageElement.innerText = text;
-    playSound(sensor);
-
-    setTimeout(function() {
-      messageElement.innerText = '';
-      activeMessages = activeMessages.filter(function(item) { return item !== sensor; });
-    }, 10000);
-  }
-}
-
-// Lógica para o botão de Ativar/Desativar som
-toggleSoundButton.addEventListener("click", function() {
-  soundEnabled = !soundEnabled; // Alterna o estado do som
-
-  // Atualiza o texto do botão
-  toggleSoundButton.innerText = soundEnabled ? "Desativar Som" : "Ativar Som";
-});
-
-// Quando a conexão for estabelecida
-ws.onopen = function() {
-  statusElement.innerText = "Conectado";
-  statusElement.classList.remove("disconnected");
-  statusElement.classList.add("connected");
-};
-
-// Quando a conexão for encerrada
-ws.onclose = function() {
-  statusElement.innerText = "Desconectado";
-  statusElement.classList.remove("connected");
-  statusElement.classList.add("disconnected");
-};
-
-// Quando receber dados do servidor
+// Modifique a parte que mostra os dados dos sensores
 ws.onmessage = function(event) {
   var sensorValues = event.data.split(",");
-  document.getElementById("sensor1").innerText = "Sensor 1: " + sensorValues[0];
-  document.getElementById("sensor2").innerText = "Sensor 2: " + sensorValues[1];
-  document.getElementById("sensor3").innerText = "Sensor 3: " + sensorValues[2];
-  document.getElementById("sensor4").innerText = "Sensor 4: " + sensorValues[3];
-  document.getElementById("sensor5").innerText = "Sensor 5: " + sensorValues[4];
+  var graus = sensorValues.map(value => (parseInt(value) * (5.0 / 1023.0) * 100).toFixed(2)); // Exemplo de conversão
 
-  // Exibe as mensagens baseadas nos valores dos sensores
+  document.getElementById("sensor1").innerText = "Sensor 1: " + graus[0] + " °C";
+  document.getElementById("sensor2").innerText = "Sensor 2: " + graus[1] + " °C";
+  document.getElementById("sensor3").innerText = "Sensor 3: " + graus[2] + " °C";
+  document.getElementById("sensor4").innerText = "Sensor 4: " + graus[3] + " °C";
+  document.getElementById("sensor5").innerText = "Sensor 5: " + graus[4] + " °C";
+
+  // As mensagens continuam iguais
   if (parseInt(sensorValues[0]) < 400) {
     showMessage("1", "Estou com SEDE");
   }
@@ -78,9 +42,4 @@ ws.onmessage = function(event) {
   if (parseInt(sensorValues[4]) < 400) {
     showMessage("5", "EU TE AMO");
   }
-};
-
-// Se houver erro
-ws.onerror = function(error) {
-  console.log("Erro de WebSocket: ", error);
 };
